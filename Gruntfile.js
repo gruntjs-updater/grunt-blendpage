@@ -18,7 +18,7 @@ module.exports = function(grunt) {
       //----- test START -----
       test: {
         options: {
-          a: true
+          del: ['test.css']
         },
         files: [{
           expand: true,
