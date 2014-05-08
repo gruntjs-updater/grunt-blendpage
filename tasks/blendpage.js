@@ -29,8 +29,23 @@ module.exports = function(grunt) {
       ign: /\sign(?=[\s>\/])/ig
     };
 
+    // 文件内容列表
+    var files = [];
+
     // 遍历源文件
     this.files.forEach(function(f) {
+
+      var fileInfo = {
+        src: f.src,
+        dest: f.dest,
+        cssList: [],
+        jsList: [],
+        source: grunt.file.read(f.src),
+        content: null,
+        done: false
+      };
+      files.push(fileInfo);
+
       // 文件内容
       var fileContent = grunt.file.read(f.src);
 
@@ -86,6 +101,9 @@ module.exports = function(grunt) {
       grunt.file.write(f.dest, "");
     });
 
+    files.forEach(function(fileInfo) {
+
+    });
     //----- end of this task -----
   });
 
