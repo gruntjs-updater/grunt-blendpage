@@ -1,6 +1,5 @@
 # grunt-blendpage
 
-> a
 
 ## Getting Started
 This plugin requires Grunt `~0.4.4`

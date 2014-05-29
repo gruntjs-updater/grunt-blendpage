@@ -26,17 +26,6 @@ module.exports = function(grunt) {
           src: '**/*.html',
           dest: 'test/dist'
         }]
-      },
-      testa: {
-        options: {
-          a: false
-        },
-        files: [{
-          expand: true,
-          cwd: 'test/src',
-          src: '**/*.html',
-          dest: 'test/dist'
-        }]
       }
       //----- test END -----
     }

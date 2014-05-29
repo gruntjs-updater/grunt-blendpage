@@ -25,8 +25,8 @@ module.exports = function(grunt) {
       cssfile: /(?:[^"' >\/]+)\.css(?=["'?])/i,
       js: /(?:[^>\n\r]*)(<script[^>]*>(?:[\s\S]*?)<\/script\s*>)[\n\r]*/ig,
       url: /^/g,
-      del: /\sdel(?=[\s>\/])/ig,
-      ign: /\sign(?=[\s>\/])/ig
+      del: /\sdel=["']true["'](?=[\s>\/])/ig,
+      ign: /\sign=["']true["'](?=[\s>\/])/ig
     };
 
     // 文件内容列表
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
           if(reg.ign.test(tag)) { return tag.replace(reg.ign, '');}
 
 
-          return '';
+          return tag;
 
         });
 
@@ -87,22 +87,19 @@ module.exports = function(grunt) {
           // 判断该节点是否需要进行忽略
           if(reg.ign.test(tag)) { return tag.replace(reg.ign, '');}
 
+          grunt.log.warn(tag);
 
-          return '';
+          return tag;
 
         });
 
         return src;
       })(fileContent);
 
-      grunt.log.warn(fileContent);
 
       // 输出结果
-      grunt.file.write(f.dest, "");
-    });
-
-    files.forEach(function(fileInfo) {
-
+      grunt.file.write(f.dest, fileContent);
+      grunt.log.ok(f.dest);
     });
     //----- end of this task -----
   });
