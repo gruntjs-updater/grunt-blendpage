@@ -19,7 +19,14 @@ module.exports = function(grunt) {
     // 默认选项
     var options = this.options({
       del: [],
-      ign: []
+      ign: [],
+      reg: [],
+      js: {
+        merge: false
+      },
+      css: {
+        merge: false
+      }
     });
 
     // 正则匹配内容
@@ -42,7 +49,8 @@ module.exports = function(grunt) {
       // 匹配需删除的批注
       // /*!delete-section-start*/...../*!delete-section-end*/
       // <!--delete-section-start-->.....<!--delete-section-end-->
-      delComments: /(\/\*!|<!--)delete-section-start(\*\/|-->)[\S\s]*(\/\*!|<!--)delete-section-end(\*\/|-->)/ig,
+      //delComments: /(\/\*!|<!--)delete-section-start(\*\/|-->)[(\S\s)]*(\/\*!|<!--)delete-section-end(\*\/|-->)/ig,
+      delComments: /(\/\*!|<!--)delete-section-start(\*\/|-->)[(\S\s)]*?(\/\*!|<!--)delete-section-end(\*\/|-->)/ig,
       // 匹配标签中的忽略属性ign='true'
       ignAttribute: /\sign=["']true["'](?=[\s>\/])/ig
     };
@@ -82,6 +90,7 @@ module.exports = function(grunt) {
       var jsList = [];
 
       var mergeCSS = function() {
+        if(!options.css.merge) { return; }
         var cssMerge = '';
         // 遍历css列表
         cssList.forEach(function(item) {
@@ -141,28 +150,31 @@ module.exports = function(grunt) {
           if(reg.ignAttribute.test(tag)) { return tag.replace(reg.ignAttribute, '');}
 
           // 要进行合并的内容
-          url = tag.match(reg.cssPath);
-          if(url && url[1]) {
-            // 外部引用
-            cssList.push({
-              source: '',
-              type: 'link',
-              url: url[1],
-              done: false,
-              fromNet: Util.isUrl(url[1])
-            });
-          } else {
-            // 内部样式
-            tag = tag.replace(/<style[^>]*>|<\/style\s*>/ig,'');
-            cssList.push({
-              source: tag,
-              url: '',
-              type: 'inline',
-              done: true,
-              fromNet: false
-            })
+          if(options.css.merge) {
+            url = tag.match(reg.cssPath);
+            if (url && url[1]) {
+              // 外部引用
+              cssList.push({
+                source: '',
+                type: 'link',
+                url: url[1],
+                done: false,
+                fromNet: Util.isUrl(url[1])
+              });
+            } else {
+              // 内部样式
+              tag = tag.replace(/<style[^>]*>|<\/style\s*>/ig, '');
+              cssList.push({
+                source: tag,
+                url: '',
+                type: 'inline',
+                done: true,
+                fromNet: false
+              })
+            }
           }
-          return '';
+
+          return tag;
 
         });
 
@@ -186,30 +198,50 @@ module.exports = function(grunt) {
             return tag.replace(reg.ignAttribute, '');
           }
 
-          url = tag.match(reg.jsPath);
-          if(url && url[1]) {
-            // 外部引用
-            jsList.push({
-              source: '',
-              type: 'link',
-              url: url[1],
-              done: false,
-              fromNet: Util.isUrl(url[1])
-            });
-          } else {
-            // 内部样式
-            tag = tag.replace(/<script[^>]*>|<\/script\s*>/ig,'');
-            jsList.push({
-              source: tag,
-              url: '',
-              type: 'inline',
-              done: true,
-              fromNet: false
-            })
+          // 要进行合并的内容
+          if(options.js.merge) {
+            url = tag.match(reg.jsPath);
+            if (url && url[1]) {
+              // 外部引用
+              jsList.push({
+                source: '',
+                type: 'link',
+                url: url[1],
+                done: false,
+                fromNet: Util.isUrl(url[1])
+              });
+            } else {
+              // 内部样式
+              tag = tag.replace(/<script[^>]*>|<\/script\s*>/ig, '');
+              jsList.push({
+                source: tag,
+                url: '',
+                type: 'inline',
+                done: true,
+                fromNet: false
+              })
+            }
           }
-          return '';
+          return tag;
 
         });
+
+        return src;
+      })(fileContent);
+
+      //----- 其他处理 -----
+      fileContent = (function(data) {
+        // 源数据
+        var src = data;
+
+        // 删除内容
+        src = src.replace(reg.delComments, '');
+
+        // 正则匹配
+        for(var i = 0, len = options.reg.length; i < len; i++) {
+          var curReg = options.reg[i];
+          src = src.replace(curReg[0], curReg[1]);
+        }
 
         return src;
       })(fileContent);
