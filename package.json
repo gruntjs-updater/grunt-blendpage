@@ -1,7 +1,7 @@
 {
   "name": "grunt-blendpage",
   "description": "A simple tool to generate static page.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/iZhen/grunt-blendpage",
   "author": {
     "name": "Zhen",
